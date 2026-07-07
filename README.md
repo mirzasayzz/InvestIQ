@@ -120,6 +120,12 @@ Browser ── POST /api/research (SSE) ──▶ Next.js route handler (Node ru
   survives proxies and deploys on Vercel without extra infra.
 - **Real runs only, no mocked demo mode.** The trade-off is a run takes
   ~1–3 minutes; the Theater turns that wait into the product's centerpiece.
+- **Calibrated verdicts, not LLM optimism.** Left alone, LLMs rate every
+  famous company INVEST. The CIO prompt enforces a strict rubric ("great
+  company ≠ great investment", PASS is the default in doubt) and is fed the
+  committee's own arithmetic — bull vs. bear conviction, net edge, worst
+  risk score — plus a deterministic guardrail: an INVEST that contradicts
+  the debate (bear conviction ≥ bull) is tempered to WATCH.
 - **Left out:** persistence/history, auth, PDF export, financial-data APIs
   (see improvements).
 

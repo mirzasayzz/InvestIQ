@@ -307,7 +307,7 @@ async function researchNode(state: State, config: Config) {
     const result = await structuredCall(
       findingsSchema,
       "facet_findings",
-      `You are an equity research analyst covering ${p.name} (${p.sector}). Facet: ${facet}. Research questions in play: ${state.plan.join(" | ")}.${evidenceBlock}\n\nProduce 2-3 specific findings for this facet. Each must be concrete (name products, numbers, dynamics — no platitudes) and tagged bull/bear/neutral for the investment case.`,
+      `You are an equity research analyst covering ${p.name} (${p.sector}). Facet: ${facet}. Research questions in play: ${state.plan.join(" | ")}.${evidenceBlock}\n\nProduce 2-3 specific findings for this facet. Each must be concrete (name products, numbers, dynamics — no platitudes) and tagged bull/bear/neutral for the investment case. Do not sanitize: if the evidence contains genuine concerns (stretched valuation, slowing growth, losses, cash burn, competition, regulation, governance, bankruptcy or distress), they MUST appear as bear findings.`,
       { maxTokens: 2000, onFallback: fallbackNarrator(emit) }
     );
 
@@ -354,7 +354,7 @@ async function debateNode(state: State, config: Config) {
     const result = await structuredCall(
       caseSchema,
       `${stance}_case`,
-      `You are the ${stance === "bull" ? "bull-case advocate" : "bear-case advocate (devil's advocate)"} in an investment committee debate about ${p.name} (${p.sector} — ${p.oneLiner}).\n\nTeam findings:\n${findingsBlock}\n\nArgue the ${stance} case as persuasively as the evidence honestly allows. 3-4 points, each with a punchy title and 1-2 sentences of support. Rate your own case's strength (conviction 0-100) honestly — do not inflate a weak case.`,
+      `You are the ${stance === "bull" ? "bull-case advocate" : "bear-case advocate (devil's advocate)"} in an investment committee debate about ${p.name} (${p.sector} — ${p.oneLiner}).\n\nTeam findings:\n${findingsBlock}\n\nArgue the ${stance} case as persuasively as the evidence honestly allows. 3-4 points, each with a punchy title and 1-2 sentences of support. Rate your own case's strength (conviction 0-100) honestly — do not inflate a weak case, and do not strawman: if your side of the argument is genuinely the stronger one given the evidence, your conviction should reflect that.`,
       { maxTokens: 2500, onFallback: fallbackNarrator(emit) }
     );
     const dc: DebateCase = { stance, ...result };
@@ -401,15 +401,38 @@ async function verdictNode(state: State, config: Config) {
     text: "The committee has heard both sides. Weighing conviction against risk, and writing the decision memo.",
   });
 
+  // Committee arithmetic — computed from the debate and risk register so
+  // the CIO anchors on the pipeline's own evidence, not on brand fame.
+  const bullConv = state.bull?.conviction ?? 50;
+  const bearConv = state.bear?.conviction ?? 50;
+  const netEdge = bullConv - bearConv;
+  const worstRisk = state.risks.reduce(
+    (m, r) => Math.max(m, r.severity * r.likelihood),
+    0
+  );
+  const bearFindings = state.findings.filter((f) => f.sentiment === "bear").length;
+
   const result = await structuredCall(
     verdictSchema,
     "investment_verdict",
-    `You are the CIO making the final call on ${p.name} (${p.sector}).\n\nBull case (${state.bull?.conviction}/100): ${state.bull?.summary}\n${state.bull?.points.map((pt) => `- ${pt.title}: ${pt.detail}`).join("\n")}\n\nBear case (${state.bear?.conviction}/100): ${state.bear?.summary}\n${state.bear?.points.map((pt) => `- ${pt.title}: ${pt.detail}`).join("\n")}\n\nRisk register:\n${state.risks.map((r) => `- ${r.risk} (severity ${r.severity}/5, likelihood ${r.likelihood}/5)`).join("\n")}\n\nMake a decisive INVEST or PASS call (WATCH only if truly borderline). Write like a world-class investor: clear thesis, honest about uncertainty, no hedging filler. Score all six factors: Growth, Profitability, Moat, Valuation, Momentum, Management.`,
+    `You are the CIO making the final call on ${p.name} (${p.sector}). Your firm's returns come from discipline: of every ten ideas the desk screens, most end in PASS. INVEST is reserved for a clear risk-adjusted edge at TODAY'S price — "great company" is NOT the same as "great investment". Fame, size, or past glory earn nothing.\n\nCommittee arithmetic: bull conviction ${bullConv}/100, bear conviction ${bearConv}/100, net edge ${netEdge >= 0 ? "+" : ""}${netEdge}, worst risk score ${worstRisk}/25, bear-tagged findings ${bearFindings} of ${state.findings.length}.\n\nBull case (${bullConv}/100): ${state.bull?.summary}\n${state.bull?.points.map((pt) => `- ${pt.title}: ${pt.detail}`).join("\n")}\n\nBear case (${bearConv}/100): ${state.bear?.summary}\n${state.bear?.points.map((pt) => `- ${pt.title}: ${pt.detail}`).join("\n")}\n\nRisk register:\n${state.risks.map((r) => `- ${r.risk} (severity ${r.severity}/5, likelihood ${r.likelihood}/5, mitigant: ${r.mitigant})`).join("\n")}\n\nDecision rubric — apply it strictly:\n- INVEST: only if the bull case decisively beats the bear case (clear positive net edge), no severity>=4 AND likelihood>=4 risk is left without a real mitigant, and valuation is defensible.\n- PASS: the bear case is comparable or stronger, fundamentals are deteriorating/unproven/distressed, valuation is the core dispute, or a structural risk has no real mitigant. When genuinely in doubt, PASS — a wrong PASS costs nothing, a wrong INVEST loses money.\n- WATCH: only for an excellent business at the wrong price, or an unproven inflection worth monitoring.\n\nWrite like a world-class investor: clear thesis, honest about uncertainty, no hedging filler. Score all six factors 0-100 with honest dispersion — weak factors MUST score low (a distressed company does not score above 50 on Financials-related factors): Growth, Profitability, Moat, Valuation, Momentum, Management.`,
     { maxTokens: 3000, onFallback: fallbackNarrator(emit) }
   );
 
+  // Deterministic guardrail: an INVEST that contradicts the committee's own
+  // arithmetic (bear desk at least as convinced as the bull) gets tempered.
+  let decision = result.decision;
+  if (decision === "INVEST" && netEdge <= 0) {
+    decision = "WATCH";
+    emit({
+      type: "thought",
+      agent: "cio",
+      text: "The bear desk's conviction matches the bull's — the committee tempers the call to WATCH.",
+    });
+  }
+
   const verdict: Verdict = {
-    decision: result.decision,
+    decision,
     conviction: result.conviction,
     horizon: result.horizon,
     headline: result.headline,

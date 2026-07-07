@@ -8,10 +8,10 @@ import { Brand, Signature } from "./Brand";
 
 const SUGGESTIONS = [
   "NVIDIA",
-  "Tesla",
   "Zomato",
   "Stripe",
-  "Airbnb",
+  "WeWork",
+  "Beyond Meat",
   "Reliance Industries",
 ];
 
@@ -37,6 +37,12 @@ const SURPRISE_POOL = [
   "Swiggy",
   "OpenAI",
   "Nintendo",
+  "WeWork",
+  "Beyond Meat",
+  "Peloton",
+  "Byju's",
+  "Nikola",
+  "Vodafone Idea",
 ];
 
 export function Landing({ onSubmit }: { onSubmit: (company: string) => void }) {
