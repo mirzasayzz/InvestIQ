@@ -49,6 +49,20 @@ export function Landing({ onSubmit }: { onSubmit: (company: string) => void }) {
   const [value, setValue] = useState("");
   const [wordIdx, setWordIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [placeholder, setPlaceholder] = useState("Name a company — e.g. NVIDIA, Zomato, Stripe…");
+
+  useEffect(() => {
+    const updatePlaceholder = () => {
+      if (window.innerWidth < 640) {
+        setPlaceholder("Name a company — e.g. NVIDIA…");
+      } else {
+        setPlaceholder("Name a company — e.g. NVIDIA, Zomato, Stripe…");
+      }
+    };
+    updatePlaceholder();
+    window.addEventListener("resize", updatePlaceholder);
+    return () => window.removeEventListener("resize", updatePlaceholder);
+  }, []);
 
   useEffect(() => {
     const t = setInterval(() => setWordIdx((i) => (i + 1) % ROTATING.length), 2600);
@@ -149,7 +163,7 @@ export function Landing({ onSubmit }: { onSubmit: (company: string) => void }) {
           transition={{ delay: 1.05, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
           <div
-            className="glass-strong rounded-2xl flex items-center gap-3 pl-5 pr-2 py-2 transition-shadow duration-500 focus-within:shadow-[0_0_0_1px_rgba(227,184,98,0.35),0_8px_40px_-8px_rgba(227,184,98,0.18)]"
+            className="glass-strong rounded-2xl flex items-center gap-2 sm:gap-3 pl-4 sm:pl-5 pr-1.5 sm:pr-2 py-1.5 sm:py-2 transition-shadow duration-500 focus-within:shadow-[0_0_0_1px_rgba(227,184,98,0.35),0_8px_40px_-8px_rgba(227,184,98,0.18)]"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0 opacity-50">
               <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.6" />
@@ -160,8 +174,8 @@ export function Landing({ onSubmit }: { onSubmit: (company: string) => void }) {
               value={value}
               onChange={(e) => setValue(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submit()}
-              placeholder="Name a company — e.g. NVIDIA, Zomato, Stripe…"
-              className="flex-1 bg-transparent outline-none text-[15px] placeholder:text-ink-muted py-2.5"
+              placeholder={placeholder}
+              className="flex-1 min-w-0 bg-transparent outline-none text-[14px] sm:text-[15px] placeholder:text-ink-muted py-2 sm:py-2.5"
               autoFocus
               spellCheck={false}
               aria-label="Company name"
@@ -172,7 +186,7 @@ export function Landing({ onSubmit }: { onSubmit: (company: string) => void }) {
             <button
               onClick={submit}
               disabled={!value.trim()}
-              className="rounded-xl px-4 py-2.5 text-[13px] font-medium transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+              className="rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-[12.5px] sm:text-[13px] font-medium transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer shrink-0"
               style={{
                 background: value.trim()
                   ? "linear-gradient(120deg, #b8842f, #e3b862)"
