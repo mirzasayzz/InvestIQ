@@ -4,7 +4,7 @@
 > weighs the risks — and hands you an **INVEST / PASS** verdict with the full
 > reasoning behind it.
 
-Built for the InsideIIM × Altuni AI Labs take-home. Stack: **Next.js (App
+An autonomous multi-agent system for equity research. Stack: **Next.js (App
 Router) · LangGraph.js · LangChain.js · TypeScript · Tailwind CSS v4 · Motion**.
 
 | Landing | Research Theater | Verdict | Decision Memo |
