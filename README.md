@@ -134,20 +134,25 @@ Browser ── POST /api/research (SSE) ──▶ Next.js route handler (Node ru
 
 *(model outputs vary run to run; these are representative)*
 
-**NVIDIA — INVEST, conviction 85/100, horizon 3–5y.**
-"NVIDIA's Diversification and Moat Propel Long-Term Growth." Factors: Growth
-90 · Profitability 85 · Moat 95 · Valuation 80 · Momentum 85 · Management 90.
-Bear desk flagged valuation and custom-silicon competition; risk register led
-by AI-capex cyclicality.
+**Microsoft — INVEST, conviction 70/100.**
+"Microsoft's AI-powered Azure engine delivers sustainable growth despite
+regulatory noise." Bull 68 vs. bear 58; factors: Growth 78 · Profitability
+72 · Moat 80 · Valuation 65 · Momentum 60 · Management 75.
 
-**Tesla — verdict is run-dependent (WATCH/INVEST), conviction ~65.**
-Committee split: bull desk argued FSD/energy optionality, bear desk argued
-margin compression from price cuts and BYD competition; verdict hinged on
-valuation risk.
+**WeWork — PASS, conviction 85/100.**
+"Existential Unit Economics Swallow Top-Line Hype." Bull desk could only
+muster 40 conviction against the bear desk's 80; Profitability scored
+10/100. The committee walks away.
 
-**Zomato — INVEST, conviction ~75.**
-Thesis built on food-delivery duopoly economics, Blinkit's quick-commerce
-growth, and improving unit economics; key risk was quick-commerce cash burn.
+**Beyond Meat — PASS, conviction 62/100.**
+"Scaling Ambitions Meet Persistent Margin Headwinds." Evenly-matched debate
+(65 vs. 65) but deteriorating fundamentals and valuation dispute tip it to
+PASS.
+
+**NVIDIA — run-dependent (INVEST/PASS), the honest answer.**
+The bear desk argues valuation, export curbs, and custom-silicon
+competition; the bull desk argues the CUDA moat and AI capex runway.
+Which side lands harder varies run to run — as it does on real desks.
 
 ## What I'd improve with more time
 
