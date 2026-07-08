@@ -1,11 +1,28 @@
-# InvestIQ — AI Investment Research Agent
+<div align="center">
+
+<a href="https://invest-iq-lake.vercel.app/">
+  <img src="https://readme-typing-svg.demolab.com/?font=Fira+Code&weight=600&pause=1200&color=F2C14E&center=true&vCenter=true&width=680&height=50&lines=Live+demo+%E2%86%92+invest-iq-lake.vercel.app;Name+a+company.+Get+a+verdict.;Six+AI+analysts.+One+decision." alt="InvestIQ live demo" />
+</a>
+
+[![🚀 Try it live](https://img.shields.io/badge/🚀_TRY_IT_LIVE-invest--iq--lake.vercel.app-F2C14E?style=for-the-badge&labelColor=0d1117)](https://invest-iq-lake.vercel.app/)
+
+</div>
+
+# InvestIQ: AI Investment Research Agent
 
 > Name a company. A team of AI analysts investigates it, argues both sides,
-> weighs the risks — and hands you an **INVEST / PASS** verdict with the full
+> weighs the risks, and hands you an **INVEST / PASS** verdict with the full
 > reasoning behind it.
 
 An autonomous multi-agent system for equity research. Stack: **Next.js (App
 Router) · LangGraph.js · LangChain.js · TypeScript · Tailwind CSS v4 · Motion**.
+
+**Live demo:** [invest-iq-lake.vercel.app](https://invest-iq-lake.vercel.app/)
+**User guide:** [InvestIQ-User-Guide.pdf](InvestIQ-User-Guide.pdf)
+
+### Watch it in action
+
+https://github.com/user-attachments/assets/f815447b-b4c5-496d-b47f-c12ace81b15b
 
 | Landing | Research Theater | Verdict | Decision Memo |
 |---|---|---|---|
@@ -18,18 +35,18 @@ Router) · LangGraph.js · LangChain.js · TypeScript · Tailwind CSS v4 · Moti
 InvestIQ is not a chatbot with a finance prompt. It is a staged, multi-agent
 research pipeline rendered as a cinematic experience in three acts:
 
-1. **Landing** — a command bar. Type a company (or hit *Surprise me*).
-2. **Research Theater** — you watch the investigation live: a phase rail
+1. **Landing**: a command bar. Type a company (or hit *Surprise me*).
+2. **Research Theater**: you watch the investigation live, a phase rail
    (Identify → Frame → Investigate → Debate → Stress-test → Decide), a
    streaming feed of analyst thoughts, actions, sources and findings, and a
    dossier that fills in as evidence lands.
-3. **Decision Memo** — a committee-grade report: verdict stamp, conviction
+3. **Decision Memo**: a committee-grade report, verdict stamp, conviction
    gauge, thesis, six factor scores, the bull and bear cases side by side, a
    severity × likelihood risk matrix, "what would change our mind", and the
    full evidence trail.
 
 Every stage of the pipeline streams its work to the browser over SSE, so the
-UI is a live window into the agent — not a spinner followed by a wall of text.
+UI is a live window into the agent, not a spinner followed by a wall of text.
 
 ## How to run it
 
@@ -75,23 +92,23 @@ Browser ── POST /api/research (SSE) ──▶ Next.js route handler (Node ru
              Gemini → Groq → Cerebras → OpenRouter ×2 → SwiftRouter
 ```
 
-- **`src/lib/agent/graph.ts`** — the LangGraph pipeline. Six nodes, one per
+- **`src/lib/agent/graph.ts`**: the LangGraph pipeline. Six nodes, one per
   research stage. The research node fans out across four facets (business &
   moat, financials, market & competition, catalysts & news) in parallel; the
   debate node runs the bull and bear advocates concurrently. Every node
   narrates its work through an `emit` callback.
-- **`src/lib/agent/llm.ts`** — the reliability layer. Every structured call
+- **`src/lib/agent/llm.ts`**: the reliability layer. Every structured call
   walks an ordered chain of OpenAI-compatible providers. A candidate that
   errors, rate-limits, times out, or returns JSON that fails schema validation
-  is skipped (with a cooldown) and the next takes over — the product keeps
+  is skipped (with a cooldown) and the next takes over, so the product keeps
   working even when free tiers throttle. Zod schemas are rendered into the
   prompt, and responses are repaired (fence-stripping, truncation-closing,
   wrapper-unwrapping) before validation.
-- **`src/app/api/research/route.ts`** — streams the event flow to the client
+- **`src/app/api/research/route.ts`**: streams the event flow to the client
   as Server-Sent Events with heartbeats.
-- **`src/lib/useResearch.ts`** — client hook that consumes the stream and
+- **`src/lib/useResearch.ts`**: client hook that consumes the stream and
   reduces it into UI state.
-- **`src/components/`** — Landing, Theater, Report, and validated-palette
+- **`src/components/`**: Landing, Theater, Report, and validated-palette
   data-viz primitives (conviction gauge, factor bars, balance meter, risk
   matrix).
 
@@ -122,9 +139,9 @@ Browser ── POST /api/research (SSE) ──▶ Next.js route handler (Node ru
   ~1–3 minutes; the Theater turns that wait into the product's centerpiece.
 - **Calibrated verdicts, not LLM optimism.** Left alone, LLMs rate every
   famous company INVEST. The CIO prompt enforces a two-sided rubric ("great
-  company ≠ great investment" — but excessive caution also loses) and is fed
-  the committee's own arithmetic — bull vs. bear conviction, net edge, worst
-  risk score — plus a deterministic guardrail: an INVEST that contradicts
+  company ≠ great investment," but excessive caution also loses) and is fed
+  the committee's own arithmetic: bull vs. bear conviction, net edge, worst
+  risk score, plus a deterministic guardrail: an INVEST that contradicts
   the debate (bear conviction ≥ bull) is tempered to WATCH. Verified live:
   WeWork → PASS, Beyond Meat → PASS, strong compounders still earn INVEST.
 - **Left out:** persistence/history, auth, PDF export, financial-data APIs
@@ -134,25 +151,32 @@ Browser ── POST /api/research (SSE) ──▶ Next.js route handler (Node ru
 
 *(model outputs vary run to run; these are representative)*
 
-**Microsoft — INVEST, conviction 70/100.**
+**SpaceX: INVEST, conviction 85/100 (full walkthrough).** See [`Demo/`](Demo/)
+for screenshots of a complete live run end to end: landing search → Research
+Theater (Identify → Frame → Investigate, with live sourced findings) → the
+Debate/Decide stages → the INVEST verdict reveal → the final decision memo
+(thesis: "unparalleled cost efficiency, disruptive innovation, and a robust
+integrated business model"; bull 93 vs. bear 60; Growth factor 90/100).
+
+**Microsoft: INVEST, conviction 70/100.**
 "Microsoft's AI-powered Azure engine delivers sustainable growth despite
 regulatory noise." Bull 68 vs. bear 58; factors: Growth 78 · Profitability
 72 · Moat 80 · Valuation 65 · Momentum 60 · Management 75.
 
-**WeWork — PASS, conviction 85/100.**
+**WeWork: PASS, conviction 85/100.**
 "Existential Unit Economics Swallow Top-Line Hype." Bull desk could only
 muster 40 conviction against the bear desk's 80; Profitability scored
 10/100. The committee walks away.
 
-**Beyond Meat — PASS, conviction 62/100.**
+**Beyond Meat: PASS, conviction 62/100.**
 "Scaling Ambitions Meet Persistent Margin Headwinds." Evenly-matched debate
 (65 vs. 65) but deteriorating fundamentals and valuation dispute tip it to
 PASS.
 
-**NVIDIA — run-dependent (INVEST/PASS), the honest answer.**
+**NVIDIA: run-dependent (INVEST/PASS), the honest answer.**
 The bear desk argues valuation, export curbs, and custom-silicon
 competition; the bull desk argues the CUDA moat and AI capex runway.
-Which side lands harder varies run to run — as it does on real desks.
+Which side lands harder varies run to run, same as it does on real desks.
 
 ## What I'd improve with more time
 
@@ -168,5 +192,5 @@ Which side lands harder varies run to run — as it does on real desks.
 
 ---
 
-*InvestIQ produces AI-generated research for educational purposes — not
+*InvestIQ produces AI-generated research for educational purposes, not
 investment advice.*
